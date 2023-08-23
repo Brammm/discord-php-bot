@@ -1,0 +1,26 @@
+{
+    "name": "brammm/discord-php-bot",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Brammm\\DiscordPhpBot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bram Van der Sype",
+            "email": "bram.vandersype@gmail.com"
+        }
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^8.2",
+        "ratchet/pawl": "^0.4.1",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest"
+    }
+}
