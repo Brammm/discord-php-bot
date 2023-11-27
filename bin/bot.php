@@ -1,7 +1,6 @@
 <?php
 
 use Dotenv\Dotenv;
-use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Ratchet\Client\Connector;
 use Ratchet\Client\WebSocket;
