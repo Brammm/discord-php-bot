@@ -3,7 +3,7 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Brammm\\DiscordPhpBot\\": "src/"
+            "DiscordPhpBot\\": "src/"
         }
     },
     "authors": [
@@ -16,7 +16,7 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ratchet/pawl": "^0.4.1",
         "react/http": "^1.9.0",
         "vlucas/phpdotenv": "^5.5"
