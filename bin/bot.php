@@ -22,7 +22,7 @@ $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSoc
     $identified = false;
     $conn->on('message', function(MessageInterface $msg) use ($conn, $loop, $client, &$sequence, &$identified) {
         echo $msg . PHP_EOL;
-        $parsedMsg = json_decode($msg, true);
+        $parsedMsg = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
 
         if ($parsedMsg['s']) {
             $sequence = $parsedMsg['s'];
@@ -32,10 +32,10 @@ $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSoc
             case 10: // Hello event
                 $hbInterval = $parsedMsg['d']['heartbeat_interval'] / 1000;
 
-                $conn->send(json_encode(['op' => 1, 'd' => null]));
+                $conn->send(json_encode(['op' => 1, 'd' => null], JSON_THROW_ON_ERROR));
                 $loop->addPeriodicTimer($hbInterval, function () use ($conn, $sequence) {
                     echo 'Sending heartbeat.' . PHP_EOL;
-                    $conn->send(json_encode(['op' => 1, 'd' => $sequence]));
+                    $conn->send(json_encode(['op' => 1, 'd' => $sequence], JSON_THROW_ON_ERROR));
                 });
                 break;
             case 11: // Heartbeat Ack
@@ -47,12 +47,12 @@ $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSoc
                             'token' => $_ENV['TOKEN'],
                             'properties' => [
                                 'os' => 'macos',
-                                'browser' => 'recreatief-tellen',
-                                'device' => 'recreatief-tellen',
+                                'browser' => 'een-voorbeeld-bot',
+                                'device' => 'een-voorbeeld-bot',
                             ],
                             'intents' => 34304,
                         ],
-                    ]));
+                    ], JSON_THROW_ON_ERROR));
                 }
                 break;
             case 0:
@@ -61,6 +61,12 @@ $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSoc
                         $identified = true;
                         break;
                     case 'MESSAGE_CREATE':
+                        $message = $parsedMsg['d']['content'];
+                        
+                        if (!str_contains(strtolower($message), 'hello')) {
+                            break;
+                        }
+                        
                         $channelId = $parsedMsg['d']['channel_id'];
                         $messageId = $parsedMsg['d']['id'];
 
