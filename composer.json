@@ -18,6 +18,7 @@
     "require": {
         "php": "^8.2",
         "ratchet/pawl": "^0.4.1",
+        "react/http": "^1.9.0",
         "vlucas/phpdotenv": "^5.5"
     },
     "require-dev": {

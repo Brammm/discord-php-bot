@@ -1,10 +1,13 @@
 <?php
 
 use Dotenv\Dotenv;
+use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Ratchet\Client\Connector;
 use Ratchet\Client\WebSocket;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use React\EventLoop\Loop;
+use React\Http\Browser;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -13,10 +16,11 @@ $dotenv->safeLoad();
 
 $loop = Loop::get();
 $connector = new Connector($loop);
-$connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSocket $conn) use ($loop) {
+$client = new Browser($loop);
+$connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSocket $conn) use ($loop, $client) {
     $sequence = null;
     $identified = false;
-    $conn->on('message', function(MessageInterface $msg) use ($conn, $loop, &$sequence, &$identified) {
+    $conn->on('message', function(MessageInterface $msg) use ($conn, $loop, $client, &$sequence, &$identified) {
         echo $msg . PHP_EOL;
         $parsedMsg = json_decode($msg, true);
 
@@ -46,15 +50,31 @@ $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(function(WebSoc
                                 'browser' => 'recreatief-tellen',
                                 'device' => 'recreatief-tellen',
                             ],
-                            'intents' => 3136,
+                            'intents' => 34304,
                         ],
                     ]));
                 }
                 break;
-            case 0: // Ready
-                $identified = true;
-                break;
+            case 0:
+                switch ($parsedMsg['t']) {
+                    case 'READY':
+                        $identified = true;
+                        break;
+                    case 'MESSAGE_CREATE':
+                        $channelId = $parsedMsg['d']['channel_id'];
+                        $messageId = $parsedMsg['d']['id'];
 
+                        $client->put('https://discord.com/api/channels/' . $channelId . '/messages/' . $messageId . '/reactions/👋/@me', [
+                            'Authorization' => 'Bot ' . $_ENV['TOKEN']
+                        ])->then(static function (ResponseInterface $response) {
+                            echo 'Putting reaction: ' . $response->getStatusCode() . ' ' . $response->getBody() . PHP_EOL;
+                        }, static function (Exception $e) {
+                            echo 'Failed putting reaction: ' . $e->getMessage();
+                        });
+
+                        break;
+                }
+                break;
         }
     });
 }, function ($e) use ($loop) {
