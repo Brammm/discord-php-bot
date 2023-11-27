@@ -5,20 +5,14 @@ declare(strict_types=1);
 namespace DiscordPhpBot\EventHandler;
 
 use Psr\Http\Message\ResponseInterface;
-use React\EventLoop\LoopInterface;
 use React\Http\Browser;
 
 final class MessageCreated implements EventHandler
 {
     private const string REACTION = '👋';
     
-    private Browser $browser;
-
-    public function __construct(LoopInterface $loop)
+    public function __construct(private readonly Browser $browser)
     {
-        $this->browser = (new Browser($loop))
-            ->withBase('https://discord.com/api/')
-            ->withHeader('Authorization', 'Bot ' . $_ENV['TOKEN']);
     }
     
     public function handlesEvent(Payload $payload): bool

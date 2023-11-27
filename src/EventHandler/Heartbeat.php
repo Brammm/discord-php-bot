@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DiscordPhpBot\EventHandler;
 
-use DiscordPhpBot\SocketConnection;
+use DiscordPhpBot\Connection;
 use React\EventLoop\LoopInterface;
 
 final class Heartbeat implements EventHandler
@@ -13,7 +13,7 @@ final class Heartbeat implements EventHandler
 
     public function __construct(
         private readonly LoopInterface $loop,
-        private readonly SocketConnection $connection,
+        private readonly Connection $connection,
     ) {
     }
     

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DiscordPhpBot\EventHandler;
 
-use DiscordPhpBot\SocketConnection;
+use DiscordPhpBot\Connection;
 
 final class Identify implements EventHandler
 {
     private static bool $identified = false;
 
-    public function __construct(private readonly SocketConnection $connection) {
+    public function __construct(private readonly Connection $connection) {
     }
     
     public function handlesEvent(Payload $payload): bool
