@@ -20,7 +20,7 @@ final class Bot
     public function run(): void
     {
         $this->connection->connect()->then(function (Connection $connection) {
-            $connection->on(function (Payload $payload) {
+            $connection->onEvent(function (Payload $payload) {
                 foreach ($this->eventHandlers as $eventHandler) {
                     if ($eventHandler->handlesEvent($payload)) {
                         $eventHandler->handle($payload);
