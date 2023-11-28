@@ -12,19 +12,21 @@ final class Bot
 {
     #[Inject]
     private Connection $connection;
-    
+
+    /** @var EventHandler[] */
     #[Inject('eventHandlers')]
-    /** @param EventHandler[] */
     private array $eventHandlers;
 
     public function run(): void
     {
-        $this->connection->connect()->then(function (Connection $connection) {
-            $connection->onEvent(function (Payload $payload) {
+        $this->connection->connect()->then(function (Connection $connection): void {
+            $connection->onEvent(function (Payload $payload): void {
                 foreach ($this->eventHandlers as $eventHandler) {
-                    if ($eventHandler->handlesEvent($payload)) {
-                        $eventHandler->handle($payload);
+                    if (! $eventHandler->handlesEvent($payload)) {
+                        continue;
                     }
+
+                    $eventHandler->handle($payload);
                 }
             });
         });

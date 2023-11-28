@@ -16,7 +16,7 @@ final class Heartbeat implements EventHandler
         private readonly Connection $connection,
     ) {
     }
-    
+
     public function handlesEvent(Payload $payload): bool
     {
         return true;
@@ -27,16 +27,18 @@ final class Heartbeat implements EventHandler
         if ($payload->sequence) {
             self::$lastSequence = $payload->sequence;
         }
-        
-        if ($payload->opCode === OpCode::Hello) {
-            // Respond immediately with a first pong
-            $this->connection->send(['op' => 1, 'd' => null]);
 
-            // Set up a periodic timer to send periodic heartbeats.
-            $hbInterval = $payload->data['heartbeat_interval'] / 1000;
-            $this->loop->addPeriodicTimer($hbInterval, function () {
-                $this->connection->send(['op' => 1, 'd' => self::$lastSequence]);
-            });
+        if ($payload->opCode !== OpCode::Hello) {
+            return;
         }
+
+        // Respond immediately with a first pong
+        $this->connection->send(['op' => 1, 'd' => null]);
+
+        // Set up a periodic timer to send periodic heartbeats.
+        $hbInterval = $payload->data['heartbeat_interval'] / 1000;
+        $this->loop->addPeriodicTimer($hbInterval, function (): void {
+            $this->connection->send(['op' => 1, 'd' => self::$lastSequence]);
+        });
     }
 }

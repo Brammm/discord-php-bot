@@ -22,15 +22,16 @@ final class ContainerFactory
         $builder = new ContainerBuilder();
         $builder->useAttributes(true);
         $builder->addDefinitions(self::definitions());
-        
+
         return $builder->build();
     }
 
+    /** @return array<string, callable|callable[]> */
     public static function definitions(): array
     {
         return [
-            LoopInterface::class => fn() => Loop::get(),
-            Connection::class => fn(LoopInterface $loop) => new Connection($loop),
+            LoopInterface::class => fn () => Loop::get(),
+            Connection::class => fn (LoopInterface $loop) => new Connection($loop),
             Browser::class => fn (LoopInterface $loop) => (new Browser($loop))
                 ->withBase('https://discord.com/api/')
                 ->withHeader('Authorization', 'Bot ' . $_ENV['TOKEN']),

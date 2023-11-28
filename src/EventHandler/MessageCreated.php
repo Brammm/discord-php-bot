@@ -7,14 +7,20 @@ namespace DiscordPhpBot\EventHandler;
 use Psr\Http\Message\ResponseInterface;
 use React\Http\Browser;
 
+use function sprintf;
+use function str_contains;
+use function strtolower;
+
+use const PHP_EOL;
+
 final class MessageCreated implements EventHandler
 {
     private const string REACTION = '👋';
-    
+
     public function __construct(private readonly Browser $browser)
     {
     }
-    
+
     public function handlesEvent(Payload $payload): bool
     {
         return $payload->event === Event::MessageCreate;
@@ -32,10 +38,10 @@ final class MessageCreated implements EventHandler
             sprintf(
                 'channels/%s/messages/%s/reactions/%s/@me',
                 $payload->data['channel_id'],
-                $payload->data['id'], 
-                self::REACTION
-            )
-        )->then(static function (ResponseInterface $response) {
+                $payload->data['id'],
+                self::REACTION,
+            ),
+        )->then(static function (ResponseInterface $response): void {
             echo 'Put reaction: ' . $response->getStatusCode() . ' ' . $response->getBody() . PHP_EOL;
         });
     }

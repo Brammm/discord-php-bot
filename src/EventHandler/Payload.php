@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DiscordPhpBot\EventHandler;
 
-final readonly class Payload
+final readonly class Payload 
 {
     public function __construct(
         public OpCode $opCode,

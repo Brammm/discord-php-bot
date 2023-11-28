@@ -16,6 +16,11 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 
+use function json_decode;
+use function json_encode;
+
+use const JSON_THROW_ON_ERROR;
+
 final class Connection
 {
     private WebSocket|null $socket = null;
@@ -31,16 +36,16 @@ final class Connection
         $connector = new Connector($this->loop);
 
         $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(
-            function (WebSocket $socket) use ($deferred) {
+            function (WebSocket $socket) use ($deferred): void {
                 $this->socket = $socket;
                 $deferred->resolve($this);
-            }
+            },
         );
 
         return $deferred->promise();
     }
 
-    /** @param array{op: int, d: array} $data */
+    /** @param array{op: int, d: array<mixed>} $data */
     public function send(array $data): void
     {
         if (! $this->socket) {
@@ -57,7 +62,7 @@ final class Connection
             throw new RuntimeException('Not connected yet!');
         }
 
-        $this->socket->on('message', function (MessageInterface $msg) use ($callback) {
+        $this->socket->on('message', static function (MessageInterface $msg) use ($callback): void {
             $decodedMsg = json_decode((string) $msg, true, 512, JSON_THROW_ON_ERROR);
 
             $payload = new Payload(

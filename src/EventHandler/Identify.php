@@ -10,9 +10,10 @@ final class Identify implements EventHandler
 {
     private static bool $identified = false;
 
-    public function __construct(private readonly Connection $connection) {
+    public function __construct(private readonly Connection $connection)
+    {
     }
-    
+
     public function handlesEvent(Payload $payload): bool
     {
         return $payload->opCode === OpCode::HeartbeatAck || $payload->event === Event::Ready;
@@ -23,13 +24,13 @@ final class Identify implements EventHandler
         if (self::$identified) {
             return;
         }
-        
+
         if ($payload->event === Event::Ready) {
             self::$identified = true;
-            
+
             return;
         }
-        
+
         $this->connection->send([
             'op' => 2,
             'd' => [

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use DiscordPhpBot\Bot;
 use DiscordPhpBot\ContainerFactory;
 use Dotenv\Dotenv;
