@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace DiscordPhpBot\EventHandler;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use React\Http\Browser;
 
 use function sprintf;
 use function str_contains;
 use function strtolower;
 
-use const PHP_EOL;
-
 final class MessageCreated implements EventHandler
 {
     private const string REACTION = '👋';
 
-    public function __construct(private readonly Browser $browser)
-    {
+    public function __construct(
+        private readonly Browser $browser,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function handlesEvent(Payload $payload): bool
@@ -41,8 +42,10 @@ final class MessageCreated implements EventHandler
                 $payload->data['id'],
                 self::REACTION,
             ),
-        )->then(static function (ResponseInterface $response): void {
-            echo 'Put reaction: ' . $response->getStatusCode() . ' ' . $response->getBody() . PHP_EOL;
+        )->then(function (ResponseInterface $response): void {
+            $this->logger->debug('Reacted to message with ' . self::REACTION, [
+                'status_code' => $response->getStatusCode(),
+            ]);
         });
     }
 }

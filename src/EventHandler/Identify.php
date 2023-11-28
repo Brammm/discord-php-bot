@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace DiscordPhpBot\EventHandler;
 
 use DiscordPhpBot\Connection;
+use Psr\Log\LoggerInterface;
 
 final class Identify implements EventHandler
 {
     private static bool $identified = false;
 
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function handlesEvent(Payload $payload): bool
@@ -27,6 +30,7 @@ final class Identify implements EventHandler
 
         if ($payload->event === Event::Ready) {
             self::$identified = true;
+            $this->logger->debug('Identified');
 
             return;
         }

@@ -8,6 +8,7 @@ use Closure;
 use DiscordPhpBot\EventHandler\Event;
 use DiscordPhpBot\EventHandler\OpCode;
 use DiscordPhpBot\EventHandler\Payload;
+use Psr\Log\LoggerInterface;
 use Ratchet\Client\Connector;
 use Ratchet\Client\WebSocket;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -25,18 +26,23 @@ final class Connection
 {
     private WebSocket|null $socket = null;
 
-    public function __construct(private LoopInterface $loop)
-    {
+    public function __construct(
+        private readonly LoopInterface $loop,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function connect(): PromiseInterface
     {
+        $this->logger->debug('Connecting to websocket...');
+        
         $deferred = new Deferred();
 
         $connector = new Connector($this->loop);
 
         $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(
             function (WebSocket $socket) use ($deferred): void {
+                $this->logger->debug('Connected.');
                 $this->socket = $socket;
                 $deferred->resolve($this);
             },
@@ -62,8 +68,9 @@ final class Connection
             throw new RuntimeException('Not connected yet!');
         }
 
-        $this->socket->on('message', static function (MessageInterface $msg) use ($callback): void {
+        $this->socket->on('message', function (MessageInterface $msg) use ($callback): void {
             $decodedMsg = json_decode((string) $msg, true, 512, JSON_THROW_ON_ERROR);
+            $this->logger->debug('Incoming message', $decodedMsg);
 
             $payload = new Payload(
                 OpCode::tryFrom($decodedMsg['op']),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DiscordPhpBot\EventHandler;
 
 use DiscordPhpBot\Connection;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 
 final class Heartbeat implements EventHandler
@@ -14,6 +15,7 @@ final class Heartbeat implements EventHandler
     public function __construct(
         private readonly LoopInterface $loop,
         private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -38,6 +40,7 @@ final class Heartbeat implements EventHandler
         // Set up a periodic timer to send periodic heartbeats.
         $hbInterval = $payload->data['heartbeat_interval'] / 1000;
         $this->loop->addPeriodicTimer($hbInterval, function (): void {
+            $this->logger->debug('Sending heartbeat ping');
             $this->connection->send(['op' => 1, 'd' => self::$lastSequence]);
         });
     }
