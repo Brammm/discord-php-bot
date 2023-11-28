@@ -23,11 +23,6 @@ final class Connection
     public function __construct(private LoopInterface $loop)
     {
     }
-    
-    public function setSocket(WebSocket $socket): void
-    {
-        $this->socket = $socket;
-    }
 
     public function connect(): PromiseInterface
     {
@@ -35,14 +30,13 @@ final class Connection
 
         $connector = new Connector($this->loop);
 
-        $connector(
-            'wss://gateway.discord.gg/?v=10&encoding=json'
-        )->then(function (WebSocket $socket) use ($deferred) {
-            $this->setSocket($socket);
+        $connector('wss://gateway.discord.gg/?v=10&encoding=json')->then(
+            function (WebSocket $socket) use ($deferred) {
+                $this->socket = $socket;
+                $deferred->resolve($this);
+            }
+        );
 
-            $deferred->resolve($this);
-        });
-        
         return $deferred->promise();
     }
 
