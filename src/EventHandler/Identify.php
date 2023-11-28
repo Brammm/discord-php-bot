@@ -36,7 +36,7 @@ final class Identify implements EventHandler
         }
 
         $this->connection->send([
-            'op' => 2,
+            'op' => OpCode::Identify,
             'd' => [
                 'token' => $_ENV['TOKEN'],
                 'properties' => [

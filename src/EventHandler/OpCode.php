@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DiscordPhpBot\EventHandler;
 
-enum OpCode: int
+use JsonSerializable;
+
+enum OpCode: int implements JsonSerializable
 {
     case Dispatch            = 0;
     case Heartbeat           = 1;
@@ -17,4 +19,9 @@ enum OpCode: int
     case InvalidSession      = 9;
     case Hello               = 10;
     case HeartbeatAck        = 11;
+
+    public function jsonSerialize(): int
+    {
+        return $this->value;
+    }
 }
